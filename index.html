@@ -1,6 +1,122 @@
+<body>
+	<div id="section1">
+		
+	</div>
+	
+</body>
+
+
 <script src="https://d3js.org/d3.v5.min.js"></script>
 
 <script>
   console.log(d3); // test if d3 is loaded
   // Insert slopegraph here
+  var width = 800;
+  var height = 600;
+
+  var svg1 = d3.select("#section1")
+	.append("svg")
+	.attr("width", width)
+	.attr("height", height);
+
+	d3.csv('wpi-cs-grads.csv').then(function(d) {
+	  	console.log(d);
+
+	  	var xScale = d3.scaleLinear()
+		  	.domain( [0, 4] )
+		  	.range( [60, 700] );
+
+		var xScaleText = d3.scaleLinear()
+		  	.domain( [0, 4] )
+		  	.range( [10, 650] );
+
+	  	var yScale = d3.scaleLinear()
+		  	.domain( [0, d3.max(d, function(row) { return parseInt(row.Total); })] )
+		  	.range( [550, 50] );
+
+		for(i = 0; i < d.length; i++){
+		  	svg1.append("line")
+		  		.attr("x1", xScale(i))
+				.attr("y1", 50)
+				.attr("x2", xScale(i))
+	            .attr("y2", 550)
+	            .attr("stroke-width", 2)
+				.attr("stroke", "black");
+
+			svg1.append("text")
+				.attr("x", xScaleText(i))
+				.attr("y", 25)
+				.attr("font-family", "sans-serif")
+				.attr("font-size", "20px")
+				.attr("fill", "black")
+				.text(d[i].Timespan);
+	  	}
+
+	  	console.log(d.length)
+	  	for(n = 1; n < d.length; n++){
+
+	  		createLines(xScale(n-1), yScale(parseInt(d[n-1].Total)), xScale(n), yScale(parseInt(d[n].Total)), "blue");
+	  		createLines(xScale(n-1), yScale(parseInt(d[n-1].FT)), xScale(n), yScale(parseInt(d[n].FT)), "yellow");
+	  		createLines(xScale(n-1), yScale(parseInt(d[n-1].PT)), xScale(n), yScale(parseInt(d[n].PT)), "green");
+	  		createLines(xScale(n-1), yScale(parseInt(d[n-1].MS)), xScale(n), yScale(parseInt(d[n].MS)), "red");
+	  		createLines(xScale(n-1), yScale(parseInt(d[n-1].PhD)), xScale(n), yScale(parseInt(d[n].PhD)), "grey");
+
+	  		createCircle(xScale(n-1), yScale(parseInt(d[n-1].Total)), "blue");
+	  		createCircle(xScale(n-1), yScale(parseInt(d[n-1].FT)), "yellow");
+	  		createCircle(xScale(n-1), yScale(parseInt(d[n-1].PT)), "green");
+	  		createCircle(xScale(n-1), yScale(parseInt(d[n-1].MS)), "red");
+	  		createCircle(xScale(n-1), yScale(parseInt(d[n-1].PhD)), "grey");
+
+	  		if(n == 1){
+	  			createText(10, yScale(parseInt(d[n-1].Total)), "Total");
+	  			createText(10, yScale(parseInt(d[n-1].FT)), "FT");
+	  			createText(10, yScale(parseInt(d[n-1].PT)), "PT");
+	  			createText(10, yScale(parseInt(d[n-1].MS)), "MS");
+	  			createText(10, yScale(parseInt(d[n-1].PhD)), "PhD");
+	  		}
+	  		if(n == 4){
+	  			createText(xScale(n) + 10, yScale(parseInt(d[n].Total)), "Total");
+	  			createText(xScale(n) + 10, yScale(parseInt(d[n].FT)), "FT");
+	  			createText(xScale(n) + 10, yScale(parseInt(d[n].PT)), "PT");
+	  			createText(xScale(n) + 10, yScale(parseInt(d[n].MS)), "MS");
+	  			createText(xScale(n) + 10, yScale(parseInt(d[n].PhD)), "PhD");
+
+	  			createCircle(xScale(n), yScale(parseInt(d[n].Total)), "blue");
+	  			createCircle(xScale(n), yScale(parseInt(d[n].FT)), "yellow");
+		  		createCircle(xScale(n), yScale(parseInt(d[n].PT)), "green");
+		  		createCircle(xScale(n), yScale(parseInt(d[n].MS)), "red");
+		  		createCircle(xScale(n), yScale(parseInt(d[n].PhD)), "grey");
+	  		}
+	  	}
+	})
+
+	function createLines(x1, y1, x2, y2, color){
+		svg1.append("line")
+		  		.attr("x1", x1)
+				.attr("y1", y1)
+				.attr("x2", x2)
+	            .attr("y2", y2)
+	            .attr("stroke-width", 2)
+				.attr("stroke", color);
+	}
+
+	function createText(x, y, text){
+		svg1.append("text")
+				.attr("x", x)
+				.attr("y", y)
+				.attr("font-family", "sans-serif")
+				.attr("font-size", "20px")
+				.attr("fill", "black")
+				.text(text);
+	}
+
+	function createCircle(x, y, color){
+		svg1.append("circle")
+		   .attr("r", 5)
+		   .attr("cx", x)
+		   .attr("cy", y)
+		   .attr("fill", color)
+	}
+
+
 </script>
