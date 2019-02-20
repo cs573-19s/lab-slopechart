@@ -23,12 +23,12 @@
 	  	console.log(d);
 
 	  	var xScale = d3.scaleLinear()
-		  	.domain( [0, 5] )
-		  	.range( [50, 750] );
+		  	.domain( [0, 4] )
+		  	.range( [60, 700] );
 
 		var xScaleText = d3.scaleLinear()
-		  	.domain( [0, 5] )
-		  	.range( [0, 700] );
+		  	.domain( [0, 4] )
+		  	.range( [10, 650] );
 
 	  	var yScale = d3.scaleLinear()
 		  	.domain( [0, d3.max(d, function(row) { return parseInt(row.Total); })] )
@@ -68,11 +68,11 @@
 	  		createCircle(xScale(n-1), yScale(parseInt(d[n-1].PhD)), "grey");
 
 	  		if(n == 1){
-	  			createText(0, yScale(parseInt(d[n-1].Total)), "Total");
-	  			createText(0, yScale(parseInt(d[n-1].FT)), "FT");
-	  			createText(0, yScale(parseInt(d[n-1].PT)), "PT");
-	  			createText(0, yScale(parseInt(d[n-1].MS)), "MS");
-	  			createText(0, yScale(parseInt(d[n-1].PhD)), "PhD");
+	  			createText(10, yScale(parseInt(d[n-1].Total)), "Total");
+	  			createText(10, yScale(parseInt(d[n-1].FT)), "FT");
+	  			createText(10, yScale(parseInt(d[n-1].PT)), "PT");
+	  			createText(10, yScale(parseInt(d[n-1].MS)), "MS");
+	  			createText(10, yScale(parseInt(d[n-1].PhD)), "PhD");
 	  		}
 	  		if(n == 4){
 	  			createText(xScale(n) + 10, yScale(parseInt(d[n].Total)), "Total");
