@@ -1,5 +1,9 @@
 # Lab -- Making a Slopechart
 
+#Submission
+Using [this example](https://bl.ocks.org/eesur/ee8d0ab88229d0e07f7f) I was able to easily adapt it to the WPI data.
+
+---
 Slopecharts are incredibly useful for comparing multiple values across two points in time.
 
 Few people are aware of slopecharts, however, and instead use more familiar charts like bars or lines.
