@@ -1,6 +1,211 @@
 <script src="https://d3js.org/d3.v5.min.js"></script>
-
+<svg width="800", height="600"></svg>
 <script>
   console.log(d3); // test if d3 is loaded
   // Insert slopegraph here
+  // Select your SVG and get variables needed for scales
+  var svg = d3.select("svg"),
+    width = +svg.attr("width"),
+    height = +svg.attr("height"),
+    gVertical = svg.append("g");
+    gTotal=svg.append("g");
+    gFT=svg.append("g");
+    gPT=svg.append("g");
+    gMS=svg.append("g");
+    gPhD=svg.append("g");
+    gTimespan=svg.append("g");
+  var margin=50;
+  d3.csv("wpi-cs-grads.csv").then(function(data) {
+  
+  //map the data
+  sdata=data;
+  sdata=sdata.map(function(row){
+  	return{
+  		Timespan: row.Timespan,
+  		Total:+row.Total,
+  		FT:+row.FT,
+  		PT:+row.PT,
+  		MS:+row.MS,
+  		PhD:+row.PhD
+  	}
+  });
+  //s1data = the sdata deleted the last row
+  s1data=sdata.slice(0,sdata.length-1)
+  console.log(sdata.slice(0,sdata.length-1));
+  console.log(data);
+
+// set x value 
+  xvalue=[100,100,250,400,550,700];
+  console.log(xvalue[0]);
+
+//color
+var colorScale=d3.schemeCategory10;
+  
+  var yscale = d3.scaleLinear()
+    .domain([0,160])
+    .range( [margin,height-margin] );
+  console.log(height);
+
+  var xscale=d3.scaleLinear()
+    .domain([0,5])
+    .range([margin,width-margin]);
+
+
+  //draw verticle lines
+  var lineVertical=gVertical.selectAll("line")
+           .data(sdata).enter().append("line")
+           .attr("x1",function(d,i){return xscale(i)})
+           .attr("y1",margin)
+           .attr("x2",function(d,i){return xscale(i)})
+           .attr("y2",height-margin)
+           .attr("stroke","grey")
+           .attr("stroke-width",1)
+  //Write TimeSpan
+  var TextTimeSpan=gTimespan.selectAll("text")
+           .data(sdata).enter().append("text")
+           .attr("x",function(d,i){return xscale(i)})
+           .attr("y",height+20-margin)
+           .attr("fill","grey")
+           .attr("text-anchor","middle")
+           .text(function(d,i){return d.Timespan})
+
+  //Total
+  var lineTotal=gTotal.selectAll("line")
+           .data(s1data).enter().append("line")
+           .attr("x1",function(d,i){return xscale(i)})
+           .attr("y1",function(d){return yscale(d.Total)})
+           .attr("x2",function(d,i){return xscale(i+1)})
+           .attr("y2",function(d,i){return yscale(sdata[i+1].Total)})
+           .attr("stroke",colorScale[0])
+           .attr("stroke-width",1)
+
+
+  var circleTotal=gTotal.selectAll("circle")
+           .data(sdata).enter().append("circle")
+           .attr("cx",function(d,i){return xscale(i)})
+           .attr("cy",function(d){return yscale(d.Total)})
+           .attr("r",5)
+           .attr("fill",colorScale[0])
+
+  var textTotal=gTotal.selectAll("text")
+           .data(sdata).enter().append("text")
+           .attr("x",function(d,i){return 5+xscale(i)})
+           .attr("y",function(d){return yscale(d.Total)})
+           .text(function(d,i){return "Total "+d.Total})
+           .attr("fill",colorScale[0])
+  
+
+
+  //FT
+  var lineFT=gFT.selectAll("line")
+           .data(s1data).enter().append("line")
+           .attr("x1",function(d,i){return xscale(i)})
+           .attr("y1",function(d){return yscale(d.FT)})
+           .attr("x2",function(d,i){return xscale(i+1)})
+           .attr("y2",function(d,i){return yscale(sdata[i+1].FT)})
+           .attr("stroke",colorScale[1])
+           .attr("stroke-width",1)
+
+
+  var circleFT=gFT.selectAll("circle")
+           .data(sdata).enter().append("circle")
+           .attr("cx",function(d,i){return xscale(i)})
+           .attr("cy",function(d){return yscale(d.FT)})
+           .attr("r",5)
+           .attr("fill",colorScale[1])
+
+  var textFT=gFT.selectAll("text")
+           .data(sdata).enter().append("text")
+           .attr("x",function(d,i){return 5+xscale(i)})
+           .attr("y",function(d){return yscale(d.FT)})
+           .text(function(d,i){return "FT "+d.FT})
+           .attr("fill",colorScale[1])
+  
+
+  //PT
+  var linePT=gPT.selectAll("line")
+           .data(s1data).enter().append("line")
+           .attr("x1",function(d,i){return xscale(i)})
+           .attr("y1",function(d){return yscale(d.PT)})
+           .attr("x2",function(d,i){return xscale(i+1)})
+           .attr("y2",function(d,i){return yscale(sdata[i+1].PT)})
+           .attr("stroke",colorScale[2])
+           .attr("stroke-width",1)
+
+
+  var circlePT=gPT.selectAll("circle")
+           .data(sdata).enter().append("circle")
+           .attr("cx",function(d,i){return xscale(i)})
+           .attr("cy",function(d){return yscale(d.PT)})
+           .attr("r",5)
+           .attr("fill",colorScale[2])
+
+  var textPT=gPT.selectAll("text")
+           .data(sdata).enter().append("text")
+           .attr("x",function(d,i){return 5+xscale(i)})
+           .attr("y",function(d){return yscale(d.PT)})
+           .text(function(d,i){return "FT "+d.PT})
+           .attr("fill",colorScale[2])
+  
+ 
+
+  //MS
+  var lineMS=gMS.selectAll("line")
+           .data(s1data).enter().append("line")
+           .attr("x1",function(d,i){return xscale(i)})
+           .attr("y1",function(d){return yscale(d.MS)})
+           .attr("x2",function(d,i){return xscale(i+1)})
+           .attr("y2",function(d,i){return yscale(sdata[i+1].MS)})
+           .attr("stroke",colorScale[3])
+           .attr("stroke-width",1)
+
+
+  var circleMS=gMS.selectAll("circle")
+           .data(sdata).enter().append("circle")
+           .attr("cx",function(d,i){return xscale(i)})
+           .attr("cy",function(d){return yscale(d.MS)})
+           .attr("r",5)
+           .attr("fill",colorScale[3])
+
+  var textMS=gMS.selectAll("text")
+           .data(sdata).enter().append("text")
+           .attr("x",function(d,i){return 5+xscale(i)})
+           .attr("y",function(d){return yscale(d.MS)})
+           .text(function(d,i){return "MS "+d.MS})
+           .attr("fill",colorScale[3])
+  
+
+  //PhD
+  var linePhD=gPhD.selectAll("line")
+           .data(s1data).enter().append("line")
+           .attr("x1",function(d,i){return xscale(i)})
+           .attr("y1",function(d){return yscale(d.PhD)})
+           .attr("x2",function(d,i){return xscale(i+1)})
+           .attr("y2",function(d,i){return yscale(sdata[i+1].PhD)})
+           .attr("stroke",colorScale[4])
+           .attr("stroke-width",1)
+
+
+  var circlePhD=gPhD.selectAll("circle")
+           .data(sdata).enter().append("circle")
+           .attr("cx",function(d,i){return xscale(i)})
+           .attr("cy",function(d){return yscale(d.PhD)})
+           .attr("r",5)
+           .attr("fill",colorScale[4])
+
+  var textPhD=gPhD.selectAll("text")
+           .data(sdata).enter().append("text")
+           .attr("x",function(d,i){return 5+xscale(i)})
+           .attr("y",function(d){return yscale(d.PhD)})
+           .text(function(d,i){return "PhD "+d.PhD})
+           .attr("fill",colorScale[4])
+           
+  });
+
+
+
+
+
+
+
 </script>
