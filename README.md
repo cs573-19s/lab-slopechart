@@ -1,4 +1,8 @@
 # Lab -- Making a Slopechart
+Working Link
+-------
+https://yutinghan.github.io/lab-slopechart/index
+
 
 Slopecharts are incredibly useful for comparing multiple values across two points in time.
 
