@@ -1,0 +1,57 @@
+{
+"studs_2010_11":[
+{
+	"name":"Total",
+	"number":98
+},
+
+{
+	"name":"FT",
+	"number":73
+},
+
+{
+	"name":"PT",
+	"number":25
+},
+
+{
+	"name":"MS",
+	"number":61
+},
+
+{
+	"name":"PhD",
+	"number":37
+}
+
+],
+
+"studs_2011_12":[
+
+{
+	"name":"Total",
+	"number":108
+},
+
+{
+	"name":"FT",
+	"number":85
+},
+
+{
+	"name":"PT",
+	"number":23
+},
+
+{
+	"name":"MS",
+	"number":66
+},
+
+{
+	"name":"PhD",
+	"number":42
+}]
+
+}
