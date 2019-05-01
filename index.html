@@ -1,6 +1,293 @@
-<script src="https://d3js.org/d3.v5.min.js"></script>
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400, 700" rel="stylesheet">
+  <style>
+    body { margin:0;position:fixed;top:0;right:0;bottom:0;left:0; }
+    
+    body {
+      font-family: 'Open Sans', sans-serif;
+    }
+    
+    .title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    
+    .slope-line {
+      stroke: #333;
+      stroke-width: 2px;
+      stroke-linecap: round;
+    }
+    
+    .slope-label-left, .slope-label-right {
+      font-size: 16px;
+      cursor: default;
+      font-weight: 400;
+    }
+    
+    .label-figure {
+      font-weight: 700;
+		}
+    
+    .border-lines {
+      stroke: #999;
+      stroke-width: 1px;
+    }
+    
+    .voronoi path {
+      fill: none;
+      pointer-events: all;
+    }
+    
+    circle {
+      fill: white;
+      stroke: black;
+      stroke-width: 2px;
+    }
+  </style>
+</head>
 
-<script>
-  console.log(d3); // test if d3 is loaded
-  // Insert slopegraph here
-</script>
+<body>
+  <script>
+    var margin = {top: 100, right: 275, bottom: 40, left: 275};
+   
+    var width = 960 - margin.left - margin.right,
+    		height = 760 - margin.top - margin.bottom;
+        
+    var svg = d3.select("body").append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    
+    
+    var y1 = d3.scaleLinear()
+    	.range([height, 0]);
+    
+    var config = {
+      xOffset: 0,
+      yOffset: 0,
+      width: width,
+      height: height,
+      labelPositioning: {
+        alpha: 0.5,
+        spacing: 18
+      },
+      leftTitle: "2010-2011",
+      rightTitle: "2011-2012",
+      labelGroupOffset: 5,
+      labelKeyOffset: 50,
+      radius: 6,
+      // Reduce this to turn on detail-on-hover version
+      unfocusOpacity: 1
+    }
+    
+    function drawSlopeGraph(cfg, data, yScale, leftYAccessor, rightYAccessor) {
+      var slopeGraph = svg.append("g")
+      	.attr("class", "slope-graph")
+      	.attr("transform", "translate(" + [cfg.xOffset, cfg.yOffset] + ")");     
+    }
+    
+    d3.json("wpi-cs-grads.json", function(error, data) {
+      if (error) return error;
+      
+      // Combine ratios into a single array
+      var students = [];
+
+      data.studs_2010_11.forEach(function(d) {
+        d.year = "2010-2011";
+
+        students.push(d);
+      });
+      data.studs_2011_12.forEach(function(d) {
+        d.year = "2011-2012";
+        students.push(d);
+      });
+
+
+      // Nest by student type
+      var nestedByType = d3.nest()
+        .key(function(d) { return d.name })
+        .entries(students);
+     
+   
+      
+         
+      // Calculate y domain for ratios
+      y1.domain([23, 108]);
+      
+      var yScale = y1;
+            
+      var voronoi = d3.voronoi()
+        .x(d => d.year == "2010-2011" ? 0 : width)
+        .y(d => yScale(d.max / d.min))
+        .extent([[-margin.left, -margin.top], [width + margin.right, height + margin.bottom]]);
+      
+      var borderLines = svg.append("g")
+      	.attr("class", "border-lines")
+      borderLines.append("line")
+      	.attr("x1", 0).attr("y1", 0)
+      	.attr("x2", 0).attr("y2", config.height);
+      borderLines.append("line")
+      	.attr("x1", width).attr("y1", 0)
+      	.attr("x2", width).attr("y2", config.height);
+      
+      var slopeGroups = svg.append("g")
+      	.selectAll("g")
+      	.data(nestedByType)
+      	.enter().append("g")
+      		.attr("class", "slope-group")
+        	.attr("id", function(d, i) {
+            d.id = "group" + i;
+            d.values[0].group = this;
+            d.values[1].group = this;
+          });
+      
+      var slopeLines = slopeGroups.append("line")
+        .attr("class", "slope-line")
+        .attr("x1", 0)
+        .attr("y1", function(d) {
+          return y1(d.values[0].number);
+        })
+        .attr("x2", config.width)
+        .attr("y2", function(d) {
+          return y1(d.values[1].number);
+        });
+      
+      var leftSlopeCircle = slopeGroups.append("circle")
+      	.attr("r", config.radius)
+      	.attr("cy", d => y1(d.values[0].number));
+      
+      var leftSlopeLabels = slopeGroups.append("g")
+      	.attr("class", "slope-label-left")
+      	.each(function(d) {
+          d.xLeftPosition = -config.labelGroupOffset;
+          d.yLeftPosition = y1(d.values[0].number);
+        });
+      
+      leftSlopeLabels.append("text")
+      	.attr("class", "label-figure")
+      	.attr("x", d => d.xLeftPosition)
+				.attr("y", d => d.yLeftPosition)
+        .attr("dx", -10)
+        .attr("dy", 3)
+        .attr("text-anchor", "end")
+        .text(d => (d.values[0].number));
+      
+      leftSlopeLabels.append("text")
+      	.attr("x", d => d.xLeftPosition)
+				.attr("y", d => d.yLeftPosition)
+        .attr("dx", -config.labelKeyOffset)
+        .attr("dy", 3)
+        .attr("text-anchor", "end")
+        .text(d => d.key);
+      
+      var rightSlopeCircle = slopeGroups.append("circle")
+      	.attr("r", config.radius)
+      	.attr("cx", config.width)
+      	.attr("cy", d => y1(d.values[1].number));
+      
+      var rightSlopeLabels = slopeGroups.append("g")
+      	.attr("class", "slope-label-right")
+      	.each(function(d) {
+          d.xRightPosition = width + config.labelGroupOffset;
+          d.yRightPosition = y1(d.values[1].number);
+        });
+      
+      rightSlopeLabels.append("text")
+      	.attr("class", "label-figure")
+				.attr("x", d => d.xRightPosition)
+				.attr("y", d => d.yRightPosition)
+        .attr("dx", 10)
+        .attr("dy", 3)
+        .attr("text-anchor", "start")
+        .text(d => (d.values[1].number));
+      
+     	rightSlopeLabels.append("text")
+				.attr("x", d => d.xRightPosition)
+				.attr("y", d => d.yRightPosition)
+        .attr("dx", config.labelKeyOffset)
+        .attr("dy", 3)
+        .attr("text-anchor", "start")
+        .text(d => d.key);
+      
+      var titles = svg.append("g")
+      	.attr("class", "title");
+      
+      titles.append("text")
+      	.attr("text-anchor", "end")
+      	.attr("dx", -10)
+      	.attr("dy", -margin.top / 2)
+      	.text(config.leftTitle);
+      
+      titles.append("text")
+      	.attr("x", config.width)
+      	.attr("dx", 10)
+      	.attr("dy", -margin.top / 2)
+      	.text(config.rightTitle);
+      
+      relax(leftSlopeLabels, "yLeftPosition");
+      leftSlopeLabels.selectAll("text")
+      	.attr("y", d => d.yLeftPosition);
+      
+      relax(rightSlopeLabels, "yRightPosition");
+      rightSlopeLabels.selectAll("text")
+      	.attr("y", d => d.yRightPosition);
+      
+      d3.selectAll(".slope-group")
+      	.attr("opacity", config.unfocusOpacity);
+      
+      var voronoiGroup = svg.append("g")
+      	.attr("class", "voronoi");
+      
+      voronoiGroup.selectAll("path")
+      	.data(voronoi.polygons(d3.merge(nestedByType.map(d => d.values))))
+      	.enter().append("path")
+      		.attr("d", function(d) { return d ? "M" + d.join("L") + "Z" : null; })
+      		.on("mouseover", mouseover)
+      		.on("mouseout", mouseout);
+    });
+    
+    function mouseover(d) {
+      d3.select(d.data.group).attr("opacity", 1);
+    }
+    
+    function mouseout(d) {
+      d3.selectAll(".slope-group")
+      	.attr("opacity", config.unfocusOpacity);
+    }
+    
+    // Function to reposition an array selection of labels (in the y-axis)
+    function relax(labels, position) {
+      again = false;
+      labels.each(function (d, i) {
+        a = this;
+        da = d3.select(a).datum();
+        y1 = da[position];
+        labels.each(function (d, j) {
+          b = this;
+          if (a == b) return;
+          db = d3.select(b).datum();
+          y2 = db[position];
+          deltaY = y1 - y2;
+
+          if (Math.abs(deltaY) > config.labelPositioning.spacing) return;
+
+          again = true;
+          sign = deltaY > 0 ? 1 : -1;
+          adjust = sign * config.labelPositioning.alpha;
+          da[position] = +y1 + adjust;
+          db[position] = +y2 - adjust;
+
+          if (again) {
+            relax(labels, position);
+          }
+        })
+      })
+    }
+      
+
+  </script>
+</body>
