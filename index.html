@@ -1,6 +1,77 @@
 <script src="https://d3js.org/d3.v5.min.js"></script>
 
+<html>
+<body>
+<h1 id="welcome">Comp Sci Grad Students</h1>
 <script>
   console.log(d3); // test if d3 is loaded
   // Insert slopegraph here
+var margin = ({top: 50, left: 50, right: 50, bottom: 50});
+//printChart: produces and displays a graph
+function printChart(){
+  //console.log("now printgraph is running!");
+  console.log(d3);
+  var printNums=new Array();
+  //Generates random numbers for the bars in the bar charts
+  d3.csv( "wpi-cs-grads.csv").then(function(data) {
+  data.forEach(function(d) {
+      d.Total= +d.Total;
+      d.FT = +d.FT;
+      d.PT = +d.PT;
+      d.MS = +d.MS;
+      d.PhD = +d.PhD;
+      console.log(d);
+    });
+    
+  //sets up the axes
+  var slopeChart = d3.select("body").append('svg')
+    .attr("width", 400)
+    .attr("height", 400)
+    .attr("x", 50)
+    .attr("y", 100);
+  var xAxisScale=d3.scaleBand()
+    .domain(data.map(function(d,i){return d.Timespan;}))
+    .range([0,300]);
+    
+  var xAx=d3.axisBottom()
+    .tickSize(0)
+    .scale(xAxisScale)
+    .tickValues(data.Timespan)
+    .tickSize([-400]);
+  var yAxisScale=d3.scaleLinear()
+    .domain([0,200])
+    .range([300,0]);
+  var yAx=d3.axisLeft()
+    .tickSize(0)
+    .scale(yAxisScale);
+  
+  xGroup = slopeChart.append('g')
+    .attr("transform", `translate(${margin.left},${400 - margin.bottom})`)
+    .call(xAx);
+  yGroup = slopeChart.append('g')
+    .attr( "transform", `translate(${margin.left},${margin.top})`)
+    .call(yAx);
+  //appends actual bars
+  slopeChart.selectAll("circle")
+    .data(data)
+    .enter().append("circle")
+    .attr("cx", function(d,i){return xAxisScale(d.Timespan)+margin.left+30;})
+    .attr("cy", function(d, i){return 350-d.Total;})
+    .attr("fill", "blue")
+    .attr("r", 3); 
+  console.log(data);
+  slopeChart.selectAll("line")
+    .data(data)
+    .enter().append("line")
+    .attr("x1", function(d,i){return xAxisScale(d.Timespan)+margin.left+30;})
+    .attr("y1", function(d, i){return 350-d.Total;})
+    .attr("x2", function(d,i){return xAxisScale(data[i+1].Timespan)+margin.left+30;})
+    .attr("y2", function(d,i){return 350-d[i+1].Total;})
+    .attr("fill", "blue")
+    .attr("r", 3); 
+  });
+  }
+printChart();
 </script>
+</body>
+</html>
